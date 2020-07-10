@@ -106,9 +106,11 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+# LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'zh-hans'
 
-TIME_ZONE = 'UTC'
+# TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
@@ -121,6 +123,18 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# ######### sms #############
+# 配置腾讯短信ID
+TENCENT_SMS_APP_ID = 66666666
+# 配置腾讯短信KEY
+TENCENT_SMS_APP_KEY = "66666666666666666666"
+# 配置腾讯短信签名
+TENCENT_SMS_SIGN = 'python'        # 自己腾讯云创建签名时填写的签名内容（使用公众号的话这个值一般是公众号全称或简称）
+TEMPLATE_ID = 659128
+
+# 用户自己的配置
+MOBILE_PHONE = '15210352909'
 
 try:
     from .local_settings import *

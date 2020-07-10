@@ -23,7 +23,7 @@ urlpatterns = [
     # url(r'^app01/send/sms/$', views.send_sms),
     # url(r'^app01/register/$', views.register),
 
-    url(r'^web/', include('web.urls')),
-    url(r'^$', include('web.urls'))
+    url(r'^web/', include('web.urls', namespace='web')),
+    # url(r'^$', include('web.urls'))
 
 ]
