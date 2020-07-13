@@ -7,6 +7,7 @@ from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 from web.utils.tencent import sms
 from .bootstrap import BootstrapForm
+from utils.encrypt import make_md5
 
 
 class RegisterForm(BootstrapForm, forms.ModelForm):
@@ -47,9 +48,16 @@ class RegisterForm(BootstrapForm, forms.ModelForm):
             raise ValidationError("手机号已存在")
         return mobile_phone
 
+    def clean_password(self):
+        password = self.cleaned_data['password']
+        if not password:
+            raise ValidationError("密码不能为空")
+        # 加密 & 保存
+        return make_md5(password)
+
     def clean_confirm_password(self):
         password = self.cleaned_data['password']
-        confirm_password = self.cleaned_data['confirm_password']
+        confirm_password = make_md5(self.cleaned_data['confirm_password'])
         if password != confirm_password:
             raise ValidationError("两次密码输入不一致，请重新输入")
         return confirm_password
@@ -142,3 +150,34 @@ class SmsForm(forms.Form):
         conn.set(mobile_phone, code, ex=60)
 
         return mobile_phone
+
+
+class LoginForm(BootstrapForm, forms.Form):
+    username = forms.CharField(label="手机号或邮箱")
+    password = forms.CharField(label="密码", widget=forms.PasswordInput())
+    code = forms.CharField(label="图片验证码")
+
+    def __init__(self, request, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.request = request
+
+    def clean_password(self):
+        password = self.cleaned_data.get('password')
+        print("pwd: ", password)
+        if not password:
+            raise ValidationError("密码不能为空")
+        # 加密 & 保存
+        return make_md5(password)
+
+    def clean_code(self):
+        # 读取用户输入的验证码
+        code = self.cleaned_data['code']
+        # 去session中获取验证码
+        session_code = self.request.session.get('img_code')
+        print("session_code:", session_code)
+        if not session_code:
+            raise ValidationError("验证码已过期，请重新获取")
+        if code.strip().upper() != session_code:
+            raise ValidationError("验证码错误")
+
+        return code
