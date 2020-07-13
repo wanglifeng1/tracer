@@ -1,7 +1,7 @@
 {% extends 'layout/basic.html' %}
 {% load static %}
 {% block title %}
-    用户注册
+    用户短信登陆
 {% endblock %}
 
 {% block css %}
@@ -17,8 +17,8 @@
 
 {% block content %}
     <div class="account">
-        <div class="title">用户注册</div>
-        <form id="regForm" method="POST" novalidate>
+        <div class="title">用户短信登陆</div>
+        <form id="loginSmsForm" method="POST" novalidate>
             {% csrf_token %}
             {% for field in form %}
                 {% if field.name == 'code' %}
@@ -45,7 +45,7 @@
 
             <div class="row">
                 <div class="col-xs-3">
-                    <input id="btnSubmit" type="button" class="btn btn-primary" value="注  册"/>
+                    <input id="btnSubmit" type="button" class="btn btn-primary" value="登  陆"/>
                 </div>
             </div>
         </form>
@@ -60,15 +60,15 @@
             bindClickSubmit();
         });
 
-        // 点击注册按钮绑定事件
+        // 点击登陆按钮绑定事件
         function bindClickSubmit() {
             $('#btnSubmit').click(function () {
                 $('.error-msg').empty();
 
                 $.ajax({
-                    url: '{% url "web:register" %}',
+                    url: '{% url "web:login_sms" %}',
                     type: 'POST',
-                    data: $('#regForm').serialize(),
+                    data: $('#loginSmsForm').serialize(),
                     dataType: 'JSON',
                     success: function (data) {
                         if (data.status) {
@@ -95,7 +95,7 @@
                     url: "{% url 'web:send_sms' %}",
                     type: "GET",
                     dataType: "JSON",
-                    data: {mobile_phone: mobilePhone, tpl: "register"},
+                    data: {mobile_phone: mobilePhone, tpl: "login"},
                     success: function (data) {  //  data = {status: false, error: {…}}
                         if (data.status) {
                             // 如果没有错误,发短信

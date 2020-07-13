@@ -131,10 +131,15 @@ TENCENT_SMS_APP_ID = 66666666
 TENCENT_SMS_APP_KEY = "66666666666666666666"
 # 配置腾讯短信签名
 TENCENT_SMS_SIGN = 'python'        # 自己腾讯云创建签名时填写的签名内容（使用公众号的话这个值一般是公众号全称或简称）
-TEMPLATE_ID = 659128
 
-# 用户自己的配置
+# 接收短信手机号
 MOBILE_PHONE = '15210352909'
+
+TENCENT_SMS_TEMPLATE = {
+    'register': 659128,
+    'login': 659129,
+}
+
 
 try:
     from .local_settings import *
