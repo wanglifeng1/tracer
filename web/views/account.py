@@ -58,12 +58,11 @@ def login(request):
     if request.method == "GET":
         form = LoginForm(request)
         return render(request, 'web/login.html', {"form": form})
-    form = LoginForm(request.POST)
-
+    form = LoginForm(request, data=request.POST)
     if form.is_valid():
-        print('xxxxxxxxxx')
         username = form.cleaned_data.get('username')
         password = form.cleaned_data.get('password')
+        # user_obj = models.UserInfo.objects.filter(username=username, password=password).first()
         user_obj = models.UserInfo.objects.filter(Q(mobile_phone=username) | Q(email=username)).filter(password=password).first()
         if user_obj:
             request.session['user_id'] = user_obj.id

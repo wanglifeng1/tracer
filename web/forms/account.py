@@ -154,6 +154,7 @@ class SmsForm(forms.Form):
 
 class LoginForm(BootstrapForm, forms.Form):
     username = forms.CharField(label="手机号或邮箱")
+    # username = forms.CharField(label="用户名")
     password = forms.CharField(label="密码", widget=forms.PasswordInput())
     code = forms.CharField(label="图片验证码")
 
@@ -179,5 +180,4 @@ class LoginForm(BootstrapForm, forms.Form):
             raise ValidationError("验证码已过期，请重新获取")
         if code.strip().upper() != session_code:
             raise ValidationError("验证码错误")
-
         return code
