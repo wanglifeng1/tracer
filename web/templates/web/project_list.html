@@ -1,0 +1,79 @@
+{% extends 'layout/manage.html' %}
+{% load static %}
+{% block title %}
+
+{% endblock %}
+
+{% block css %}
+
+{% endblock %}
+
+
+{% block content %}
+    <div class="container-fluid">
+        <a href="" class="btn btn-primary" data-toggle="modal" data-target="#addModal">
+            <i class="fa fa-plus-circle" aria-hidden="true"></i> 新建项目</a>
+    </div>
+
+    <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">新建项目</h4>
+                </div>
+                <div class="modal-body">
+
+                    <form id="addForm">
+                        {% csrf_token %}
+                        {% for field in form %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                <span class="error-msg">{{ field.errors.0 }}</span>
+                            </div>
+                        {% endfor %}
+                    </form>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button id="btnPro" type="button" class="btn btn-primary">新建</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(function () {
+            bindClickPro();
+        });
+
+        function bindClickPro() {
+            $('#btnPro').click(function () {
+                $('.error-msg').empty();
+                $.ajax({
+                    url: "{% url 'web:project_list' %}",
+                    type: "POST",
+                    dataType: "JSON",
+                    data: $('#addForm').serialize(),
+                    success: function (data) {
+                        if (data.status) {
+                            location.reload()
+                        } else {
+                            $.each(data.error, function (k, v) {
+                                $('#id_' + k).next().text(v[0]);
+                            })
+                        }
+                    }
+                })
+            })
+        }
+
+    </script>
+{% endblock %}

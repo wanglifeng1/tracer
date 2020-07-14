@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
+import uuid
+import datetime
 from django.http import JsonResponse
 from django.shortcuts import render, HttpResponse, redirect
 from django.db.models import Q
@@ -7,6 +9,7 @@ from web import models
 from web.forms.account import RegisterForm, SmsForm, LoginSmsForm, LoginForm
 from io import BytesIO
 from utils.image.img_code import check_code
+from scripts import base
 
 ''' 
 用户账户相关功能 如：登陆 短信 注册 注销 
@@ -20,7 +23,22 @@ def register(request):
         return render(request, 'web/register.html', {"form": form})
     form = RegisterForm(data=request.POST)
     if form.is_valid():
-        form.save()    # 保存到数据库
+        # 用户信息保存到数据库
+        instance = form.save()
+
+        # 价格策略
+        price_policy = models.PricePolicy.objects.filter(category=1, title="个人免费版", price=0).first()
+
+        # 创建交易记录
+        models.Transaction.objects.create(
+            status=1,
+            order=uuid.uuid4(),
+            user=instance,
+            price_policy=price_policy,
+            count=0,
+            price=0,
+            start_datetime=datetime.datetime.now()
+        )
         return JsonResponse({"status": True, "res": "/web/index/"})
     return JsonResponse({"status": False, "error": form.errors})
 
