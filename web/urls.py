@@ -12,6 +12,8 @@ urlpatterns = [
     url(r'^index/$', home.index, name='index'),
 
     url(r'^project/list/$', manage.project_list, name='project_list'),
+    url(r'^project/star/(?P<project_type>\w+)/(?P<project_id>\d+)/$', manage.project_star, name='project_star'),
+    url(r'^project/unstar/(?P<project_type>\w+)/(?P<project_id>\d+)/$', manage.project_unstar, name='project_unstar'),
 
 ]
 
