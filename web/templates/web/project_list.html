@@ -6,10 +6,11 @@
 
 {% block css %}
     <style>
-    .btn {
-        margin-bottom: 10px;
-    }
-    .panel-body {
+        .project {
+            margin-top: 10px;
+        }
+
+        .panel-body {
             padding: 0;
             display: flex;
             flex-direction: row;
@@ -62,21 +63,44 @@
             font-size: 18px;
         }
 
+        .color-radio label {
+            margin-left: 0;
+            padding-left: 0;
+        }
+
+        .color-radio input[type="radio"] {
+            display: none;
+        }
+
+        .color-radio input[type="radio"] + .cycle {
+            display: inline-block;
+            height: 25px;
+            width: 25px;
+            border-radius: 50%;
+            border: 2px solid #dddddd;
+        }
+
+        .color-radio input[type="radio"]:checked + .cycle {
+            border: 2px solid black;
+        }
+
     </style>
 {% endblock %}
 
 
 {% block content %}
-    <div class="container-fluid">
-        <a href="" class="btn btn-primary" data-toggle="modal" data-target="#addModal">
+    <div class="container-fluid project">
+        <div style="margin-bottom: 10px">
+            <a href="" class="btn btn-primary" data-toggle="modal" data-target="#addModal">
             <i class="fa fa-plus-circle" aria-hidden="true"></i> 新建项目</a>
+        </div>
 
         <div class="panel panel-default">
             <div class="panel-heading"><a href="#"><i class="fa fa-star" aria-hidden="true"></i> 星标</a></div>
             <div class="panel-body">
                 {% for item in project_dic.star %}
                     <div class="item">
-                        <a href="" class="title"
+                        <a href="{% url 'web:dashboard' project_id=item.value.id %}" class="title"
                            style="background-color: {{ item.value.get_color_display }};">{{ item.value.name }}</a>
                         <div class="info">
                             <div>
@@ -99,8 +123,8 @@
             <div class="panel-heading"><a href="#"><i class="fa fa-cloud" aria-hidden="true"></i> 我创建的项目</a></div>
             <div class="panel-body">
                 {% for item in project_dic.my %}
-                <div class="item">
-                        <a href="#" class="title"
+                    <div class="item">
+                        <a href="{% url 'web:dashboard' project_id=item.id %}" class="title"
                            style="background-color: {{ item.get_color_display }};">{{ item.name }}</a>
                         <div class="info">
                             <div>
@@ -124,8 +148,8 @@
             </div>
             <div class="panel-body">
                 {% for item in project_dic.join %}
-                <div class="item">
-                        <a href="" class="title"
+                    <div class="item">
+                        <a href="{% url 'web:dashboard' project_id=item.id %}" class="title"
                            style="background-color: {{ item.get_color_display }};">{{ item.name }}</a>
                         <div class="info">
                             <div>
@@ -143,6 +167,7 @@
                 {% endfor %}
             </div>
         </div>
+
     </div>
 
     <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -179,7 +204,8 @@
 
 {% block js %}
     <script>
-        $(function () {unstar/my/3/
+        // 全局函数，页面加载完自动执行
+        $(function () {
             bindClickPro();
         });
 

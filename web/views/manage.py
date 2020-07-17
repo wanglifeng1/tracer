@@ -5,7 +5,7 @@ from web import models
 
 
 def project_list(request):
-    """ 后台管理 """
+    """ 后台管理展示 """
     if request.method == "GET":
         """ 得到三个列表 """
         project_dic = {"star": [], "my": [], "join": []}

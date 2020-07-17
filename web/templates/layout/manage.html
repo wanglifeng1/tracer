@@ -32,6 +32,10 @@
             <a class="navbar-brand" href="{% url 'web:index' %}">Tracer</a>
             <ul class="nav navbar-nav navbar-left active">
                 {% all_project_list request %}
+
+                {% if request.tracer.project %}
+                    {% manage_menu_list request %}
+                {% endif %}
             </ul>
         </div>
 

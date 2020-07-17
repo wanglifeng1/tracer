@@ -1,0 +1,116 @@
+{% extends 'layout/manage.html' %}
+{% block css %}
+    <style>
+        .panel-default .panel-heading {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        .panel-default {
+            margin-top: 10px;
+        }
+
+        .panel-body {
+            padding: 0;
+        }
+
+        .title-list ul {
+            padding-left: 15px;
+        }
+
+        .title-list ul a {
+            display: block;
+            padding: 5px 0;
+        }
+
+        .title-list {
+            border-right: 1px solid #dddddd;
+            min-height: 500px;
+        }
+
+        .content {
+            border-left: 1px solid #dddddd;
+            min-height: 700px;
+            margin-left: -1px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div><a href=""><i class="fa fa-book" aria-hidden="true"></i> Wiki文档</a></div>
+                <div class="function">
+                    <a type="button" class="btn btn-success btn-xs"
+                       href="{% url 'web:wiki_add' project_id=request.tracer.project.id %}">
+                        <i class="fa fa-plus-circle" aria-hidden="true"></i> 新建
+                    </a>
+                </div>
+            </div>
+
+            <div class="panel-body">
+                <div class="col-sm-3 title-list">
+                    <ul id="catalog">
+
+                    </ul>
+                </div>
+                <div class="col-sm-9 content">
+                    {% if wiki_obj %}
+                        <div>
+                            {{ wiki_obj.content }}
+                        </div>
+                    {% else %}
+                        <div style="text-align: center; margin-top: 50px;">
+                        <h4>《{{ request.tracer.project.name }}》 wiki文档库</h4>
+                        <a href="{% url 'web:wiki_add' project_id=request.tracer.project.id %}">
+                        <i class="fa fa-plus-circle" aria-hidden="true"></i> 新建文章</a>
+                        </div>
+
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        let WIKI_URL = "{% url 'web:wiki' project_id=request.tracer.project.id %}";
+
+        $(function () {
+            initCatalog();
+        });
+        function initCatalog() {
+
+            $.ajax({
+                url: "{% url 'web:wiki_catalog' project_id=request.tracer.project.id %}",
+                type: "GET",
+                dataType: "JSON",
+                success: function (res) {
+                    $.each(res.wiki_list, function (k, v) {
+                        if(res.status) {
+                            let WIKI_DETAIL_URL = WIKI_URL + "?wiki_id=" + v.id;
+                            let li = $('<li>').attr('id', 'id_' + v.id).append($('<a>').attr('href', WIKI_DETAIL_URL).text(v.title)).append($('<ul>'));
+                            if(!v.parent) {
+                                // v = {id: 1, title: "今年第一次来公司", parent: null}
+                                $('#catalog').append(li)
+                            }
+                            else {
+                                // 拼接父id
+                                let pid = '#id_' + v.parent;
+                                $(pid).children('ul').append(li)
+                            }
+                        }
+                        else{
+                            // 初始化失败
+                        }
+                    })
+                }
+            })
+        }
+
+    </script>
+{% endblock %}

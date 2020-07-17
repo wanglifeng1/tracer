@@ -10,6 +10,7 @@ class Tracer(object):
     def __init__(self):
         self.user = None
         self.price_policy = None
+        self.project = None
 
 
 class AuthMiddleware(MiddlewareMixin):
@@ -47,3 +48,23 @@ class AuthMiddleware(MiddlewareMixin):
             于是 有了上边的Tracer类
             封装后：request.tracer.user & request.tracer.price_policy，日后读代码更容易理解
         """
+
+    def process_view(self, request, view, args, kwargs):
+        # 判断url是否以manage开头
+
+        if not request.path_info.startswith("/web/manage"):
+            return
+        # 是否我我创建 or 我参与的 项目
+        project_id = kwargs.get("project_id")
+        # 是否是我创建的
+        project_obj = models.Project.objects.filter(creator=request.tracer.user, id=project_id).first()
+        if project_obj:
+            request.tracer.project = project_obj
+            return
+        # 是否是我参与的
+        project_user_obj = models.ProjectUser.objects.filter(user=request.tracer.user, project_id=project_id).first()
+        if project_user_obj:
+            request.tracer.project = project_user_obj.project
+            return
+
+        return redirect('web:project_list')
