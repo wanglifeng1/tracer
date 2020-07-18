@@ -1,7 +1,10 @@
+import time
 from django.shortcuts import render, HttpResponse, redirect
 from django.http import JsonResponse
 from web.forms.project import ProjectForm
 from web import models
+
+from web.utils.tencent.cos import create_bucket
 
 
 def project_list(request):
@@ -29,6 +32,14 @@ def project_list(request):
         return render(request, "web/project_list.html", {"form": form, "project_dic": project_dic})
     form = ProjectForm(request, data=request.POST)
     if form.is_valid():
+        # 创建项目同时创建桶 & 区域
+        name = form.cleaned_data.get('name')
+        bucket = "{}-{}-{}-1300113042".format(name, request.tracer.user.mobile_phone, str(int(time.time())))
+        region = "ap-beijing"
+        create_bucket(bucket, region)
+        # 保存到数据库
+        form.instance.bucket = bucket
+        form.instance.region = region
         # 校验通过，保存到数据库之前，还有一个必填字段，在form表单校验时没有
         form.instance.creator = request.tracer.user
         form.save()

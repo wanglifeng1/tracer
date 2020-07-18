@@ -66,6 +66,9 @@ class Project(models.Model):
     use_space = models.IntegerField(verbose_name="项目已使用空间", default=0)
     star = models.BooleanField(verbose_name="星标", default=False)
 
+    bucket = models.CharField(verbose_name="cos桶", max_length=128)
+    region = models.CharField(verbose_name="cos区域", max_length=32)
+
     creator = models.ForeignKey(verbose_name="创建者", to="UserInfo", on_delete=models.CASCADE)
     join_count = models.IntegerField(verbose_name="参与人数", default=1)
     create_time = models.DateTimeField(verbose_name="创建时间", auto_now_add=True)
@@ -85,6 +88,8 @@ class Wiki(models.Model):
     project = models.ForeignKey(verbose_name="项目", to="Project", on_delete=models.CASCADE)
     title = models.CharField(verbose_name="标题", max_length=32)
     content = models.TextField(verbose_name="内容")
+
+    depth = models.SmallIntegerField(verbose_name="深度", default=1)
 
     parent = models.ForeignKey(verbose_name="父文章", to="self", null=True, blank=True, related_name="children", on_delete=models.CASCADE)
 
