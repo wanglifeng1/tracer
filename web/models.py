@@ -95,3 +95,22 @@ class Wiki(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class FileRegister(models.Model):
+    """ 文件 & 文件夹管理 """
+    project = models.ForeignKey(verbose_name="项目", to="Project", on_delete=models.CASCADE)
+    name = models.CharField(verbose_name="文件夹名称", max_length=32)
+    type_choice = (
+        (1, "文件夹"),
+        (2, "文件")
+    )
+    type = models.SmallIntegerField(verbose_name="类型", choices=type_choice)
+    key = models.CharField(verbose_name='文件储存在COS中的KEY', max_length=128, null=True, blank=True)
+
+    file_size = models.BigIntegerField(verbose_name="文件大小", null=True, blank=True, help_text="字节")
+
+    parent = models.ForeignKey(verbose_name="父目录", to="self", related_name="child", on_delete=models.CASCADE, null=True, blank=True)
+
+    update_user = models.ForeignKey(verbose_name="更新者", to="UserInfo", on_delete=models.CASCADE)
+    update_time = models.DateTimeField(verbose_name="更新日期", auto_now_add=True)

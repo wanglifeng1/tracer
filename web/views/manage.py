@@ -33,8 +33,7 @@ def project_list(request):
     form = ProjectForm(request, data=request.POST)
     if form.is_valid():
         # 创建项目同时创建桶 & 区域
-        name = form.cleaned_data.get('name')
-        bucket = "{}-{}-{}-1300113042".format(name, request.tracer.user.mobile_phone, str(int(time.time())))
+        bucket = "{}-{}-1300113042".format(request.tracer.user.mobile_phone, str(int(time.time())))
         region = "ap-beijing"
         create_bucket(bucket, region)
         # 保存到数据库

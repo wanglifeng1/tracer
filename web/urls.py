@@ -1,5 +1,5 @@
 from django.conf.urls import url, include
-from web.views import account, home, manage, promanage, wiki
+from web.views import account, home, manage, promanage, wiki, file
 
 urlpatterns = [
     # 登陆/注册
@@ -30,7 +30,10 @@ urlpatterns = [
         url(r'^wiki/edit/(?P<wiki_id>\d+)/$', wiki.wiki_edit, name='wiki_edit'),
         url(r'^wiki/upload/$', wiki.wiki_upload, name='wiki_upload'),
 
-        url(r'^file/$', promanage.file, name='file'),
+        url(r'^file/$', file.file, name='file'),
+        url(r'^file/delete/$', file.file_delete, name='file_delete'),
+
+
         url(r'^setting/$', promanage.setting, name='setting'),
     ])),
 
