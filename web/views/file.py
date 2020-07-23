@@ -1,9 +1,11 @@
+import json
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.forms import model_to_dict
-from web.forms.file import FolderForm
+from django.views.decorators.csrf import csrf_exempt
+from web.forms.file import FolderForm, FileForm
 from web import models
-from web.utils.tencent.cos import cos_delete, cos_deletes
+from web.utils.tencent.cos import cos_delete, cos_deletes, credential
 
 
 # http://127.0.0.1:8001/web/manage/9/file/
@@ -30,7 +32,8 @@ def file(request, project_id):
         context = {
             "form": form,
             "file_list": file_list,
-            "breadcrumb_list": breadcrumb_list
+            "breadcrumb_list": breadcrumb_list,
+            "parent": parent_obj
         }
         return render(request, 'web/file.html', context)
 
@@ -94,4 +97,54 @@ def file_delete(request, project_id):
     return JsonResponse({"status": True})
 
 
+@csrf_exempt
+def cos_credential(request, project_id):
+    """ 获取临时凭证 """
+    # 获取要上传的文件列表
+    file_list = json.loads(request.body.decode('utf-8'))
+    pre_file_limit = request.tracer.price_policy.project_size * 1024 * 1024
+    # 项目空间
+    project_space = request.tracer.price_policy.project_space * 1024 * 1024 * 1024
+    # 项目已使用空间
+    project_use_space = request.tracer.project.use_space
+    total_size = 0
+    # 限制文件处理 单文件 & 总大小
+    for file in file_list:
+        # 文件名 file['name']
+        # 文件大小 file['size']
+        if file['size'] > pre_file_limit:
+            msg = "单文件超出限制，文件：{}，限制大小{}，请升级套餐".format(file['name'], pre_file_limit)
+            return JsonResponse({"status": False, "error": msg})
+        total_size += file['size']
+    # 文件总大小判断
+    if total_size > project_space - project_use_space:
+        return JsonResponse({"status": False, "error": "文件总大小超出限制，请升级套餐"})
+    dic = credential(request.tracer.project.bucket, request.tracer.project.region)
+    return JsonResponse({"status": True, "data": dic})
 
+
+@csrf_exempt
+def file_post(request, project_id):
+    """ 文件上传 """
+    # 获取前端数据，进行校验(使用form表单校验)
+    form = FileForm(request, data=request.POST)
+    if form.is_valid():
+        # 校验通过，数据写入数据库
+        data_dic = form.cleaned_data
+        data_dic.pop('etag')
+        data_dic.update({"project": request.tracer.project, "type": 2, "update_user": request.tracer.user})
+        instance = models.FileRegister.objects.create(**data_dic)
+        # 更新项目已使用空间
+        request.tracer.project.use_space += data_dic['file_size']
+        request.tracer.project.save()
+        # 拿到这条数据，传给前端 进行展示
+        result = {
+            'id': instance.id,
+            'name': instance.name,
+            'file_size': instance.file_size,
+            'update_user': instance.update_user.name,
+            'update_time': instance.update_time.strftime('%Y年%m月%d日 %H:%M')
+        }
+        print(result)
+        return JsonResponse({"status": True, "data": result})
+    return JsonResponse({"status": False, "error": form.errors})

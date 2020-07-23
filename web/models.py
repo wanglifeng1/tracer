@@ -63,7 +63,7 @@ class Project(models.Model):
     color = models.SmallIntegerField(verbose_name="颜色", choices=COLOR_CHOICES, default=1)
     desc = models.CharField(verbose_name="项目描述", max_length=255, null=True, blank=True)
 
-    use_space = models.IntegerField(verbose_name="项目已使用空间", default=0)
+    use_space = models.BigIntegerField(verbose_name="项目已使用空间", default=0, help_text="字节")
     star = models.BooleanField(verbose_name="星标", default=False)
 
     bucket = models.CharField(verbose_name="cos桶", max_length=128)
@@ -100,16 +100,16 @@ class Wiki(models.Model):
 class FileRegister(models.Model):
     """ 文件 & 文件夹管理 """
     project = models.ForeignKey(verbose_name="项目", to="Project", on_delete=models.CASCADE)
-    name = models.CharField(verbose_name="文件夹名称", max_length=32)
+    name = models.CharField(verbose_name="文件夹名称", max_length=128)
     type_choice = (
         (1, "文件夹"),
         (2, "文件")
     )
     type = models.SmallIntegerField(verbose_name="类型", choices=type_choice)
-    key = models.CharField(verbose_name='文件储存在COS中的KEY', max_length=128, null=True, blank=True)
+    key = models.CharField(verbose_name='文件储存在COS中的KEY', max_length=255, null=True, blank=True)
 
     file_size = models.BigIntegerField(verbose_name="文件大小", null=True, blank=True, help_text="字节")
-
+    file_path = models.CharField(verbose_name="文件路径", max_length=255)
     parent = models.ForeignKey(verbose_name="父目录", to="self", related_name="child", on_delete=models.CASCADE, null=True, blank=True)
 
     update_user = models.ForeignKey(verbose_name="更新者", to="UserInfo", on_delete=models.CASCADE)
