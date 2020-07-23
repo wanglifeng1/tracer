@@ -1,8 +1,11 @@
 import json
+import requests
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.urls import reverse
+from django.shortcuts import render, HttpResponse
 from django.forms import model_to_dict
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.encoding import escape_uri_path
 from web.forms.file import FolderForm, FileForm
 from web import models
 from web.utils.tencent.cos import cos_delete, cos_deletes, credential
@@ -143,8 +146,24 @@ def file_post(request, project_id):
             'name': instance.name,
             'file_size': instance.file_size,
             'update_user': instance.update_user.name,
-            'update_time': instance.update_time.strftime('%Y年%m月%d日 %H:%M')
+            'update_time': instance.update_time.strftime('%Y年%m月%d日 %H:%M'),
+            'download_url': reverse('web:file_download', kwargs={"project_id": project_id, "file_id": instance.id})
         }
         print(result)
         return JsonResponse({"status": True, "data": result})
     return JsonResponse({"status": False, "error": form.errors})
+
+
+def file_download(request, project_id, file_id):
+    """ 文件下载 """
+    file_obj = models.FileRegister.objects.filter(id=file_id, project_id=project_id).first()
+    res = requests.get(file_obj.file_path)
+
+    # 文件分块处理
+    data = res.iter_content()
+    # 提示下载框
+    response = HttpResponse(data, content_type='application/octet-steam')
+
+    # 设置响应头 中文文件名转义
+    response['Content-Disposition'] = "attachment; filename={}".format(escape_uri_path(file_obj.name))
+    return response
