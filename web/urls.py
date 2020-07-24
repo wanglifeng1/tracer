@@ -1,5 +1,5 @@
 from django.conf.urls import url, include
-from web.views import account, home, manage, promanage, wiki, file
+from web.views import account, home, manage, promanage, wiki, file, setting, issues
 
 urlpatterns = [
     # 登陆/注册
@@ -20,7 +20,7 @@ urlpatterns = [
     # 项目管理
     url(r'^manage/(?P<project_id>\d+)/', include([
         url(r'^dashboard/$', promanage.dashboard, name='dashboard'),
-        url(r'^issues/$', promanage.issues, name='issues'),
+
         url(r'^statistics/$', promanage.statistics, name='statistics'),
 
         url(r'^wiki/$', wiki.wiki, name='wiki'),
@@ -36,8 +36,10 @@ urlpatterns = [
         url(r'^file/download/(?P<file_id>\d+)/$', file.file_download, name='file_download'),
         url(r'^cos/credential/$', file.cos_credential, name='cos_credential'),
 
+        url(r'^setting/$', setting.setting, name='setting'),
+        url(r'^setting/delete/$', setting.setting_delete, name='setting_delete'),
 
-        url(r'^setting/$', promanage.setting, name='setting'),
+        url(r'^issues/$', issues.issues, name='issues'),
     ])),
 
 ]

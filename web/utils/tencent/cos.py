@@ -124,3 +124,21 @@ def cos_check(bucket, region, key):
         Key=key,
     )
     return result
+
+
+def delete_bucket(bucket, region):
+    secret_id = settings.TENCENT_COS_SECRET_ID[0]
+    secret_key = settings.TENCENT_COS_SECRET_KEY[0]
+
+    config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key)
+    client = CosS3Client(config)
+
+    # 删除桶中所有文件
+    # 删除桶中所有碎片
+    # 删除桶
+
+    # 找到文件 删除
+    part_objs = client.list_objects(bucket)
+    print(part_objs)
+    # 找到碎片 删除
+

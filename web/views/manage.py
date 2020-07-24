@@ -41,7 +41,14 @@ def project_list(request):
         form.instance.region = region
         # 校验通过，保存到数据库之前，还有一个必填字段，在form表单校验时没有
         form.instance.creator = request.tracer.user
-        form.save()
+        instance = form.save()
+
+        # 生成默认问题类型
+        issuse_type_list = []
+        for item in models.IssuesType.PROJECT_INIT_LIST:
+            issuse_type_list.append(models.IssuesType(project=instance, title=item))
+        models.IssuesType.objects.bulk_create(issuse_type_list)
+
         return JsonResponse({"status": True})
     return JsonResponse({"status": False, "error": form.errors})
 
