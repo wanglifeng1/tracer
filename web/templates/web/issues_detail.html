@@ -6,168 +6,64 @@
     <link rel="stylesheet"
           href="{% static 'plugin/bootstrap-datepicker-master/dist/css/bootstrap-datepicker.min.css' %}">
     <link rel="stylesheet" href="{% static 'plugin/bootstrap-select-1.13.14/dist/css/bootstrap-select.min.css' %}">
-    <link rel="stylesheet" href="{% static 'plugin/select2/css/select2.min.css' %}">
     <style>
-        .issues-list .number {
-            width: 100px;
-            text-align: right;
+        .comment-area .item {
+            margin-top: 20px;
         }
 
-        .issues-list .number a {
-            font-weight: 500;
-            padding: 0 10px;
-        }
-
-        .issues-list .issue .tags {
-            padding: 10px 0;
-        }
-
-        .issues-list .issue .tags span {
-            margin-right: 20px;
-            display: inline-block;
-            font-size: 12px;
-        }
-
-        .issues-list .issue .tags .type {
-            color: white;
-            padding: 1px 5px;
-            border-radius: 5px;
-            background-color: #dddddd;
-        }
-
-        .editormd {
-            margin-bottom: 0;
-        }
-
-        .pd-0 {
-            padding: 0 !important;
-        }
-
-        /* 筛选 */
-        .filter-area .item {
-            margin-bottom: 15px;
-        }
-
-        .filter-area .item .title {
-            padding: 5px 0;
-        }
-
-        .filter-area .item .check-list a {
-            text-decoration: none;
-            display: inline-block;
-            min-width: 65px;
-        }
-
-        .filter-area .item .check-list label {
-            font-weight: 200;
-            font-size: 13px;
-            margin-left: 3px;
-        }
-
-        .filter-area .item .check-list a:hover {
-            font-weight: 300;
-        }
-
-        .filter-area .item .check-list .cell {
+        .comment-area .left-avatar {
+            float: left;
             margin-right: 10px;
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background-color: #304659;
+            color: white;
+            text-align: center;
+            line-height: 30px;
+            border-radius: 50%;
         }
 
+        .comment-area .right-info {
+            padding-left: 35px;
+        }
+
+        .comment-area .right-info .desc .msg {
+            display: inline-block;
+            padding-right: 20px;
+            color: #8c8c8c;
+        }
+
+        .comment-area .child {
+            padding-left: 55px;
+        }
+
+        .comment-area .error-msg {
+            color: red;
+        }
+
+        .comment-area .reply-user {
+            display: inline-block;
+            background-color: #ddd;
+            color: black;
+            padding: 6px 8px;
+            margin-left: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
     </style>
 {% endblock %}
 {% block content %}
     <div class="container-fluid">
-        <div class="col-md-3">
+
+        <div class="col-md-7">
             <div class="panel panel-default">
-                <div class="panel-heading"><i class="fa fa-search" aria-hidden="true"></i> 筛选</div>
-                <div class="panel-body filter-area">
-                    {% for chioce_dic in filter %}
-                        <div class="item">
-                            <div class="title">{{ chioce_dic.name }}</div>
-                            <div class="check-list">
-                                {% for item in chioce_dic.filter %}
-                                    {{ item }}
-                                {% endfor %}
-                            </div>
-                        </div>
-                    {% endfor %}
+                <div class="panel-heading">
+                    <div>
+                        <i class="fa fa-edit" aria-hidden="true"></i> 更新问题
+                    </div>
                 </div>
-            </div>
-
-        </div>
-        <div class="col-md-9">
-            <div class="panel panel-default">
-                <!-- Default panel contents -->
-                <div class="panel-heading"><i class="fa fa-quora" aria-hidden="true"></i> 问题</div>
-                <div class="panel-body">
-                    <a class="btn btn-success btn-sm" data-toggle="modal" data-target="#addModal">新建问题</a>
-                    <a class="btn btn-primary btn-sm" data-toggle="modal" data-target="#inviteModal">邀请成员</a>
-                </div>
-
-                <!-- Table -->
-                <table class="table">
-                    <tbody class="issues-list">
-                    {% for issues in issues_list %}
-                        <tr>
-                            <td class="number">
-                                <i class="fa fa-circle text-{{ issues.priority }}"></i>
-                                <a target="_blank"
-                                   href="{% url 'web:issues_detail' project_id=request.tracer.project.id issues_id=issues.id %}">{% string_just issues.id %}</a>
-                            </td>
-                            <td class="issue">
-                                <div>
-                                    <a target="_blank"
-                                       href="{% url 'web:issues_detail' project_id=request.tracer.project.id issues_id=issues.id %}">{{ issues.subject }}</a>
-                                </div>
-                                <div class="tags">
-                                    <span class="type">
-                                        {{ issues.issues_type.title }}
-                                    </span>
-                                    <span>
-                                        <i class="fa fa-refresh" aria-hidden="true"></i>
-                                        {{ issues.get_status_display }}
-                                    </span>
-                                    {% if issues.assign %}
-                                        <span>
-                                        <i class="fa fa-hand-o-right" aria-hidden="true"></i>
-                                        {{ issues.assign.name }}
-                                    </span>
-                                    {% endif %}
-
-                                    <span>
-                                        <i class="fa fa-user-o" aria-hidden="true"></i>
-                                        {{ issues.creator.name }}
-                                    </span>
-                                    {% if issues.end_date %}
-                                        <span><i class="fa fa-calendar"
-                                                 aria-hidden="true"></i> {{ issues.end_date }} 截止</span>
-                                    {% endif %}
-                                    <span><i class="fa fa-clock-o"
-                                             aria-hidden="true"></i> {{ issues.latest_update_datetime }} 更新</span>
-                                </div>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <nav aria-label="" style="text-align: center;">
-                <ul class="pagination" style="margin-top: 0;">
-                    {{ page_html|safe }}
-                </ul>
-            </nav>
-        </div>
-    </div>
-    <div id="addModal" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog"
-         aria-labelledby="myLargeModalLabel">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">新建问题</h4>
-                </div>
-                <div class="modal-body" style="padding-right: 40px;">
-
+                <div class="panel-body" style="padding-right: 40px;">
                     <form id="addForm" class="form-horizontal">
                         {% csrf_token %}
                         <div class="form-group clearfix">
@@ -327,18 +223,68 @@
 
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">取 消</button>
-                    <button type="button" class="btn btn-primary" id="btnAddSubmit">添 加</button>
+            </div>
+        </div>
+        <div class="col-sm-5">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <i class="fa fa-search" aria-hidden="true"></i> 操作记录
+                </div>
+                <div class="panel-body comment-area">
+
+                    <div class="comment-list">
+                    </div>
+
+                    <hr/>
+                    <div class="comment-text" id="commentText">
+                        <div class="form-group">
+                            <textarea id="content" rows="6" class="form-control" placeholder="请输入要回复的内容"></textarea>
+                            <span class="error-msg"></span>
+                        </div>
+                        <input class="btn btn-primary" type="button" id="btnSubmit" value="提 交">
+                        <div class="reply-user hide" id="replyUser"> 回复 <span></span>
+                            <i class="fa fa-times-circle" aria-hidden="true" style="color: #9d9d9d;"></i>
+                        </div>
+                    </div>
+
+
                 </div>
             </div>
         </div>
+
     </div>
 
+    <div class="hide" id="recordTemplate">
+        <div class="item clearfix">
+            <div class="left-avatar"></div>
+            <div class="right-info">
+                <pre></pre>
+                <div class="desc">
+                    <div class="msg">
+                        <i class="fa fa-bullhorn" aria-hidden="true"></i>
+                        <span class="type"></span>
+                    </div>
+                    <div class="msg">
+                        <i class="fa fa-user-o" aria-hidden="true"></i>
+                        <span class="user"></span>
+                    </div>
+                    <div class="msg">
+                        <i class="fa fa-clock-o" aria-hidden="true"></i>
+                        <span class="date"></span>
+                    </div>
+
+                    <a href="#commentText" class="reply">
+                        <i class="fa fa-commenting-o" aria-hidden="true"></i> 回复
+                    </a>
+
+                </div>
+            </div>
+            <div class="child"></div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block js %}
-    <script src="{% static 'plugin/select2/js/select2.min.js' %}"></script>
     <script src="{% static 'plugin/editor.md-master/editormd.min.js' %}"></script>
     <script src="{% static 'plugin/bootstrap-select-1.13.14/dist/js/bootstrap-select.min.js' %}"></script>
     <script src="{% static 'plugin/bootstrap-select-1.13.14/dist/js/i18n/defaults-zh_CN.min.js' %}"></script>
@@ -347,39 +293,40 @@
 
     <script>
         let WIKI_UPLOAD_URL = "{% url 'web:wiki_upload' project_id=request.tracer.project.id %}";
-        let POST_URL = "{% url 'web:issues' project_id=request.tracer.project.id %}";
+        let ISSUES_RECORD_URL = "{% url 'web:issues_record' project_id=request.tracer.project.id issues_id=issues_obj.id %}";
+        let ISSUES_CHANGE_URL = "{% url 'web:issues_change' project_id=request.tracer.project.id issues_id=issues_obj.id %}";
+        let EDITOR;
         $(function () {
-            bindEdit();
+            initMdEditor();
             initDate();
-            FormPost();
-            bindCheckFilter();
-            initSelect2();
+            initIssuesRecord();
+            bindReply();
+            bindCancelReplyUser();
+            bindSubmit();
+            bindChangeIssues();
         });
-
-        // 点击checkbox跳转
-        function bindCheckFilter() {
-            $('.filter-area').find(':checkbox').click(function () {
-                location.href = $(this).parent().attr('href')
-            })
-        }
-
-        function bindEdit() {
-            $('#addModal').on('shown.bs.modal', function (event) {
-                // 对话框弹出时，内容触发。
-                initMdEditor();
-            })
-        }
 
         // 初始化markdown编辑器
         function initMdEditor() {
-            editormd("edit", {
+            EDITOR = editormd("edit", {
                 placeholder: "请输入内容",
                 height: 400,
                 path: "{% static 'plugin/editor.md-master/lib/' %}",
                 saveHTMLToTextarea: true,   //  注意3：这个配置，方便post提交表单
                 imageUpload: true,
                 imageFormats: ['jpg', 'png', 'gif', 'jpeg'],
-                imageUploadURL: WIKI_UPLOAD_URL
+                imageUploadURL: WIKI_UPLOAD_URL,
+                toolbarAutoFixed: false,
+                onload: function () {
+                    this.previewing();
+                },
+                toolbarIcons: function () {
+                    return ["bold", "hr", "del", "italic", "quote", "|", "image", "preview", "watch", "fullscreen", "||", "save"]
+                },
+                toolbarCustomIcons: {
+                    save: "<input type='button' value='保 存' class='btn btn-success btn-sm' onclick='saveDesc();' />"
+                },
+
             })
         }
 
@@ -393,30 +340,119 @@
             });
         }
 
-        // 表单提交
-        function FormPost() {
-            $('#btnAddSubmit').click(function () {
-                $('#addForm').find('.error-msg').empty();
-                $.post(POST_URL, $('#addForm').serialize(), function (res) {
+        // 问题评论
+        function initIssuesRecord() {
+            $.ajax({
+                url: ISSUES_RECORD_URL,
+                type: "GET",
+                dataType: "JSON",
+                success: function (res) {
                     if (res.status) {
-                        location.href = location.href;
-                    } else {
-                        $.each(res.error, function (k, v) {
-                            $('#id_' + k).parent().next('.error-msg').text(v[0]);
+                        $.each(res.data, function (index, item) {
+                            createRecordNode(item)
                         })
+                    } else {
+
                     }
-                })
+                }
             })
         }
 
-        // 初始化select2
-        function initSelect2() {
-            $('.select2').select2({}).on('select2:select',function (e) {
-                // 选中某一项 触发
-                location.href = $(this).find('option').attr('val')
-            }).on('select2:unselect', function (e) {
-                // 取消某一项 触发
-                location.href = $(this).find('option').attr('val')
+        // 问题记录展示
+        function createRecordNode(item) {
+            let $item = $("#recordTemplate").find('.item').clone();
+            $item.find('.left-avatar').text(item.creator[0].toUpperCase());
+            $item.find('pre').text(item.content);
+            $item.find('.user').text(item.creator);
+            $item.find('.type').text(item.reply_type);
+            $item.find('.date').text(item.create_datetime);
+            $item.attr({id: item.id, username: item.creator});
+
+            if (item.reply_id) {
+                $("#" + item.reply_id).children('.child').append($item);
+            } else {
+                $('.comment-list').append($item)
+            }
+        }
+
+        /*
+        回复问题
+         */
+        function bindReply() {
+            $('.comment-list').on('click', '.reply', function () {
+                let $item = $(this).parent().parent().parent();
+                let id = $item.attr('id');
+                let username = $item.attr('username');
+                $('#replyUser').removeClass('hide').attr('parent-id', id).children('span').text(username);
+            })
+        }
+
+        /*
+        取消回复
+         */
+        function bindCancelReplyUser() {
+
+            $('#replyUser').click(function () {
+                $(this).addClass('hide').removeAttr('parent-id').children('span').text("");
+            })
+        }
+
+        /*
+        点击评论
+         */
+        function bindSubmit() {
+            $('#btnSubmit').click(function () {
+                $("#commentText .error-msg").text("");
+                $.ajax({
+                    url: ISSUES_RECORD_URL,
+                    type: "POST",
+                    data: {content: $('#content').val(), reply: $("#replyUser").attr('parent-id')},
+                    dataType: "JSON",
+                    success: function (res) {
+                        if (res.status) {
+                            // 添加节点
+                            createRecordNode(res.data);
+                            // 输入的内容清空
+                            $('#content').val('');
+                            $('#replyUser').addClass('hide').removeAttr('parent-id').children('span').text("");
+                        } else {
+                            $.each(res.error, function (k, v) {
+                                $('#content').next('.error-msg').text(v[0]);
+                            })
+                        }
+                    }
+                })
+            })
+
+        }
+
+        // 问题内容变更
+        function bindChangeIssues() {
+            $("#addForm").find(".form-control").change(function () {
+                let postDict = {name: $(this).attr('name'), value: $(this).val()};
+                // 发送请求到后端处理
+                postAjaxData(postDict);
+            })
+        }
+        // desc内容单独处理
+        function saveDesc() {
+            let postDict = {name: 'desc', value: EDITOR.getValue()};
+            postAjaxData(postDict)
+        }
+        function postAjaxData(postDict) {
+            $.ajax({
+                url: ISSUES_CHANGE_URL,
+                type: "POST",
+                header: {"Content-Type": "application/json;charset=utf-8"},
+                data: JSON.stringify(postDict),
+                dataType: "JSON",
+                success: function (res) {
+                    if(res.status){
+                        createRecordNode(res.data);
+                    }else{
+                        $("#id_" + postDict.name).parent().next('.error-msg').text(res.error)
+                    }
+                }
             })
         }
     </script>

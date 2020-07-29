@@ -40,6 +40,9 @@ urlpatterns = [
         url(r'^setting/delete/$', setting.setting_delete, name='setting_delete'),
 
         url(r'^issues/$', issues.issues, name='issues'),
+        url(r'^issues/detail/(?P<issues_id>\d+)/$', issues.issues_detail, name='issues_detail'),
+        url(r'^issues/record/(?P<issues_id>\d+)/$', issues.issues_record, name='issues_record'),
+        url(r'^issues/change/(?P<issues_id>\d+)/$', issues.issues_change, name='issues_change'),
     ])),
 
 ]
