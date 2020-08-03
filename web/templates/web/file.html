@@ -1,6 +1,6 @@
 {% extends 'layout/manage.html' %}
 {% load static %}
-
+{% load dashboard %}
 {% block css %}
     <style>
         .panel-default .panel-heading {
@@ -323,7 +323,6 @@
                                 parent: CURRENT_PARENT_ID
                             }, function (res) {
                                 // 上传成功，处理返回值
-                                console.log(res.data);
                                 let $newTr = $('#rowTemplate').find('tr').clone();
                                 $newTr.find('.name').text(res.data.name);
                                 $newTr.find('.file_size').text(res.data.file_size);

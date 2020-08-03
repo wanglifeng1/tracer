@@ -149,7 +149,6 @@ def file_post(request, project_id):
             'update_time': instance.update_time.strftime('%Y年%m月%d日 %H:%M'),
             'download_url': reverse('web:file_download', kwargs={"project_id": project_id, "file_id": instance.id})
         }
-        print(result)
         return JsonResponse({"status": True, "data": result})
     return JsonResponse({"status": False, "error": form.errors})
 

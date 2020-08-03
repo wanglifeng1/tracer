@@ -335,6 +335,47 @@
         </div>
     </div>
 
+    <div id="inviteModal" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog"
+         aria-labelledby="myLargeModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">邀请成员</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="inviteForm">
+                        {% csrf_token %}
+                        {% for item in invite_form %}
+                            <div class="form-group">
+                                <label for="{{ item.id_for_label }}">{{ item.label }}</label>
+                                <span>{% if  item.help_text %}（{{ item.help_text }}）{% endif %}</span>
+                                {{ item }}
+                                <span class="error-msg"></span>
+                            </div>
+                        {% endfor %}
+                        <button type="button" class="btn btn-success" id="btnGenInviteCode">生成邀请码</button>
+                    </form>
+                    <div id="inviteArea" class="hide">
+                        <hr/>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-btn">
+                                    <input type="button" value="邀请链接" class="btn btn-default">
+                                </div>
+                                <input type="text" class="form-control" id="inviteUrl">
+                                <div class="input-group-btn">
+                                    <input type="button" value="复制链接" class="btn btn-primary" id="btnCopyUrl">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block js %}
@@ -348,12 +389,16 @@
     <script>
         let WIKI_UPLOAD_URL = "{% url 'web:wiki_upload' project_id=request.tracer.project.id %}";
         let POST_URL = "{% url 'web:issues' project_id=request.tracer.project.id %}";
+        let INVITE_POST_URL = "{% url 'web:issues_invite' project_id=request.tracer.project.id %}";
+
         $(function () {
             bindEdit();
             initDate();
             FormPost();
             bindCheckFilter();
             initSelect2();
+            InviteForm();
+            bindCopyInvite();
         });
 
         // 点击checkbox跳转
@@ -393,7 +438,7 @@
             });
         }
 
-        // 表单提交
+        // 新建问题表单提交
         function FormPost() {
             $('#btnAddSubmit').click(function () {
                 $('#addForm').find('.error-msg').empty();
@@ -411,12 +456,37 @@
 
         // 初始化select2
         function initSelect2() {
-            $('.select2').select2({}).on('select2:select',function (e) {
+            $('.select2').select2({}).on('select2:select', function (e) {
                 // 选中某一项 触发
                 location.href = $(this).find('option').attr('val')
             }).on('select2:unselect', function (e) {
                 // 取消某一项 触发
                 location.href = $(this).find('option').attr('val')
+            })
+        }
+
+        // 邀请码表单提交
+        function InviteForm() {
+            $('#btnGenInviteCode').click(function () {
+                $('#inviteForm').find('.error-msg').empty();
+                $.post(INVITE_POST_URL, $('#inviteForm').serialize(), function (res) {
+                    if (res.status) {
+                        $('#inviteArea').removeClass('hide').find('#inviteUrl').val(res.data)
+                    } else {
+                        $.each(res.error, function (k, v) {
+                            $('#id_' + k).next('.error-msg').text(v[0]);
+                        })
+                    }
+                })
+            })
+        }
+
+        // 复制邀请码链接
+        function bindCopyInvite() {
+            $('#btnCopyUrl').click(function () {
+                let textInput = $('#inviteUrl')[0];
+                textInput.select();
+                document.execCommand("Copy");
             })
         }
     </script>

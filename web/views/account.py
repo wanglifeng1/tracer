@@ -60,7 +60,6 @@ def login_sms(request):
 
     form = LoginSmsForm(data=request.POST)
     if form.is_valid():
-        print('aaaaa')
         # 校验通过，用户名信息写到session
         mobile_phone = form.cleaned_data['mobile_phone']
         # 这里重复到数据库查询了，在LoginSmsForm中已经查询过一次了，可以在form校验时返回用户对象进行优化
@@ -80,7 +79,7 @@ def login(request):
     if form.is_valid():
         username = form.cleaned_data.get('username')
         password = form.cleaned_data.get('password')
-        # user_obj = models.UserInfo.objects.filter(username=username, password=password).first()
+        # 邮箱或者手机号登陆 或 用户名/密码登陆
         user_obj = models.UserInfo.objects.filter(Q(mobile_phone=username) | Q(email=username)).filter(password=password).first()
         if user_obj:
             request.session['user_id'] = user_obj.id
